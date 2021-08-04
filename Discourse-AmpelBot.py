@@ -90,7 +90,7 @@ class null7b:
                         break # leave while
             
             elif (GPIO.input(5) and GPIO.input(24) and GPIO.input(25)) and self.jemand_da == self.JA:
-                l_count = 0
+                l_count = 1
                 while l_count <= 4:
                     l_count = l_count + 1
                     time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
