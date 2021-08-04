@@ -1,0 +1,9 @@
+api_username='ampel-bot'
+api_key='very large Discourse API KEY'
+forum_address='https://forum.discourse.adress.com'
+forum_calender= 'https://forum.discourse.adress.com/c/veranstaltungen/l/calendar'
+content_red = "[X] :red_square: keiner da\n[ ] :green_heart: jemand da\n\n<Platz für Timestamp>\n\n[zum Veranstaltungs-Kalender](https://forum.discourse.adress.com/c/veranstaltungen/l/calendar)"
+content_grn = "[ ] :red_square: keiner da\n[X] :green_heart: jemand da\n\n<Platz für Timestamp>\n\n[zum Veranstaltungs-Kalender](https://forum.discourse.adress.com/c/veranstaltungen/l/calendar)"
+post_id = 28410
+# topic_id = 3533     #nur für Update Zeitstempel, noch nicht implementiert
+edit_reason = "Ampel-Bot"
