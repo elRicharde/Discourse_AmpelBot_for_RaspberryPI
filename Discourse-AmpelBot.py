@@ -2,7 +2,7 @@
 # Autor: Richarde
 # Script zum Update eines Discourse-Forum-Posts via User "Ampel-Bot"
 # wird mindestens einer von 3 Eingängen geschalten, geht die Ampel auf Grün
-# ist kein Eingang High, geht die Ampel auf Rot (since V1.1 this logic is reverse)
+# ist kein Eingang High, geht die Ampel auf Rot 
 # Version 1.1 vom 04.08.2021
 ###############################################################################
 # ChangeLog:
@@ -17,6 +17,11 @@
 #   eine der Überwachten Sicherungen eingeschalten wird, somit keine falschen
 #   Schaltvorgänge durch Induktionsspannungen (Schaltpegel 3,3 V ist sehr klein) 
 # - Schaltverzögerung von 2 Sekunden um jedes Prellen der Schalter zu vermeiden
+###############################################################################
+# Version 1.2 - 07.09.2021
+# Richarde
+# - interne PullUp Widerstände hinzuschalten
+###############################################################################
 
 
 # benötigte Bibliotheken für das Projekt einbinden
@@ -127,9 +132,9 @@ locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
 
 #SetUp GPIO PINs as Input
 GPIO.setmode(GPIO.BCM)  # GPIO Nummerierung statt Pin Nummerierung
-GPIO.setup(5, GPIO.IN)  # set GPIO  5 as input  
-GPIO.setup(24, GPIO.IN) # set GPIO 24 as input  
-GPIO.setup(25, GPIO.IN) # set GPIO 25 as input  
+GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP )  # set GPIO  5 as input  
+GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP ) # set GPIO 24 as input  
+GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP ) # set GPIO 25 as input  
 
 g_null7b = null7b()
 g_null7b.main()
