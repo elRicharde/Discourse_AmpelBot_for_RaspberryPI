@@ -30,7 +30,10 @@
 # Version 1.3 - 11.09.2021
 # Richarde
 # einzelne Auswertung der Sicherungen zusätzlich zum Hallenstatus
-
+###############################################################################
+# Version 1.31 - 11.09.2021
+# Richarde
+# small Bugfixes
 
 
 # benötigte Bibliotheken für das Projekt einbinden
@@ -60,8 +63,8 @@ class null7b:
 
     def __init__(self):
         self.ampel_status = self.ROT
-        self.f7_forum = self.AUS
-        self.f13_forum = self.AUS
+        self.f7_forum = 'xxx'
+        self.f13_forum = 'xxx'
         self.f15_forum = 'xxx'  #somit wird bei Programmstart immer ein Post abgesetzt
 
         self.zone_ber = pytz.timezone('Europe/Berlin')
@@ -102,11 +105,17 @@ class null7b:
         l_content_red = l_content_red.replace("<datetimestring_f7>", self.datetimestring_f7)
         l_content_red = l_content_red.replace("<datetimestring_f13>", self.datetimestring_f13)
         l_content_red = l_content_red.replace("<datetimestring_f15>", self.datetimestring_f15)
+        l_content_red = l_content_red.replace("<F7>", self.f7_dj)
+        l_content_red = l_content_red.replace("<F13>", self.f13_kasse)
+        l_content_red = l_content_red.replace("<F15>", self.f15_bar_theke_licht)
 
         l_content_grn = constants.content_grn.replace("<datetimestring_ampel>", self.datetimestring_ampel)
         l_content_grn = l_content_grn.replace("<datetimestring_f7>", self.datetimestring_f7)
         l_content_grn = l_content_grn.replace("<datetimestring_f13>", self.datetimestring_f13)
         l_content_grn = l_content_grn.replace("<datetimestring_f15>", self.datetimestring_f15)
+        l_content_grn = l_content_grn.replace("<F7>", self.f7_dj)
+        l_content_grn = l_content_grn.replace("<F13>", self.f13_kasse)
+        l_content_grn = l_content_grn.replace("<F15>", self.f15_bar_theke_licht)
 
         l_client = DiscourseClient(
                 constants.forum_address,
@@ -146,7 +155,7 @@ class null7b:
                     time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
                     if not GPIO.input(5) and l_count == 4:      #F7 ist 2 Sekunden lang an
                         # ok, getting serious... switch it!
-                        self.f7_dj = self.AUS
+                        self.f7_dj = self.AN
                     if not GPIO.input(5):           #F7 ist an
                         continue # next iteration
                     else:    #F7 ist aus
@@ -172,7 +181,7 @@ class null7b:
                     time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
                     if not GPIO.input(24) and l_count == 4:      #F13 ist 2 Sekunden lang an
                         # ok, getting serious... switch it!
-                        self.f13_kasse = self.AUS
+                        self.f13_kasse = self.AN
                     if not GPIO.input(24):           #F13 ist an
                         continue # next iteration
                     else:    #F13 ist aus
@@ -198,7 +207,7 @@ class null7b:
                     time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
                     if not GPIO.input(25) and l_count == 4:      #F15 ist 2 Sekunden lang an
                         # ok, getting serious... switch it!
-                        self.f15_bar_theke_licht = self.AUS
+                        self.f15_bar_theke_licht = self.AN
                     if not GPIO.input(25):           #F15 ist an
                         continue # next iteration
                     else:    #F15 ist aus
