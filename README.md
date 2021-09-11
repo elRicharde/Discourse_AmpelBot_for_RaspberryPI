@@ -8,3 +8,5 @@ With Version 1.1 the Logic was switched to 3x HiLevel = RedLight, at least one L
 Several Waits in Coding avoid unclear states as well. 
 
 Version 1.2 - internal PullUp Resistors switched on
+
+Version 1.3 - Auswertungen der Sicherungen nun zusätzlich zur Ampel und ebenfalls mit Timestamp im Post
