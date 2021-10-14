@@ -14,3 +14,5 @@ Version 1.3 - Auswertungen der Sicherungen nun zusätzlich zur Ampel und ebenfal
 Version 1.31 - Bugfixes
 
 Version 1.32 - Bugfixes
+
+Version 1.33 - Exeption Handling for DiscourseClient added

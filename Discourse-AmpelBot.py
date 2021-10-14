@@ -39,6 +39,10 @@
 # Richarde
 # Bugfixes
 ###############################################################################
+# Version 1.33 - 14.10.2021
+# Richarde
+# Exception Handling DiscourseClient eingefügt
+###############################################################################
 
 
 # benötigte Bibliotheken für das Projekt einbinden
@@ -106,6 +110,7 @@ class null7b:
 
     def update_ampel(self, i_setze_auf): 
 
+        l_err = True #Fehlermerker #+ Version 1.33 - 14.10.2021
         l_content_red = constants.content_red.replace("<datetimestring_ampel>", self.datetimestring_ampel)
         l_content_red = l_content_red.replace("<datetimestring_f7>", self.datetimestring_f7)
         l_content_red = l_content_red.replace("<datetimestring_f13>", self.datetimestring_f13)
@@ -127,10 +132,26 @@ class null7b:
                 api_username = constants.api_username,
                 api_key = constants.api_key,)
 
+        #>>>> Version 1.33 - 14.10.2021
         if i_setze_auf == self.GRN:
-            l_client.update_post( constants.post_id, l_content_grn, constants.edit_reason )
+            while l_err == True:
+                try:
+                    l_client.update_post( constants.post_id, l_content_grn, constants.edit_reason )
+                    l_err = False
+                except :
+                    l_err = True
+                    time.sleep(30)  
+
+
         elif i_setze_auf == self.ROT:
-            l_client.update_post( constants.post_id, l_content_red, constants.edit_reason )
+            while l_err == True:
+                try:
+                    l_client.update_post( constants.post_id, l_content_red, constants.edit_reason )
+                    l_err = False
+                except :
+                    l_err = True
+                    time.sleep(30)  
+        #<<<< Version 1.33 - 14.10.2021
 
 
     def main(self):
