@@ -16,3 +16,5 @@ Version 1.31 - Bugfixes
 Version 1.32 - Bugfixes
 
 Version 1.33 - Exeption Handling for DiscourseClient added
+
+Version 1.34 - Code Redundanzen entfernt

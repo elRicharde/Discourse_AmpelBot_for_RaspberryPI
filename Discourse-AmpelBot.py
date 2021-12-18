@@ -43,6 +43,10 @@
 # Richarde
 # Exception Handling DiscourseClient eingefügt
 ###############################################################################
+# Version 1.34 - 18.12.2021
+# Richarde
+# Code Redundanzen entfernen
+###############################################################################
 
 
 # benötigte Bibliotheken für das Projekt einbinden
@@ -99,6 +103,52 @@ class null7b:
             self.f15_bar_theke_licht = self.AUS            
         else:
             self.f15_bar_theke_licht = self.AN      
+
+    def check_input(self, i_fuse, i_GPIO):  # i_fuse = self.f15_bar_theke_licht i_GPIO = 25
+
+        if i_fuse == self.AN: #Sicherung ist an
+            l_count = 0
+            while l_count < 4: #4 Durchgänge
+                l_count = l_count + 1
+                time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
+                if GPIO.input(i_GPIO) and l_count == 4: #Sicherung ist 2 Sekunden lang aus
+                    # ok, getting serious... switch it!
+                    i_fuse = self.AUS
+                if GPIO.input(i_GPIO):  #Sicherung ist aus
+                    continue # next iteration
+                else:   #Sicherung ist an
+                    break # leave while
+        elif i_fuse == self.AUS:    #Sicherung ist aus
+            l_count = 0
+            while l_count < 4: #4 Durchgänge
+                l_count = l_count + 1
+                time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
+                if not GPIO.input(i_GPIO) and l_count == 4: #Sicherung ist 2 Sekunden lang an
+                    # ok, getting serious... switch it!
+                    i_fuse = self.AN
+                if not GPIO.input(i_GPIO):  #Sicherung ist an
+                    continue # next iteration
+                else:    #Sicherung ist aus
+                    break # leave while
+    
+    def trigger_ampel_update(self):
+
+        if ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.ROT:     #Änderung Ampel rot -> grün
+            self.datetimestring_ampel = self.datetimestring_f7
+            self.ampel_status = self.GRN
+            self.update_ampel( self.ampel_status )                    
+
+        elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.GRN:   #Änderung Ampel grün -> rot
+            self.datetimestring_ampel = self.datetimestring_f7
+            self.ampel_status = self.ROT
+            self.update_ampel( self.ampel_status )   
+
+        elif ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.GRN:     #Ampel ist und bleibt grün
+            self.update_ampel( self.ampel_status )    
+
+        elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.ROT:   #Ampel ist und bleibt rot
+            self.update_ampel( self.ampel_status )    
+
 
     def get_datetimestring(self): 
         
@@ -162,84 +212,14 @@ class null7b:
             # Gerüst vorerst für 3 Eingänge (5, 24, 25), kann aber auf bis zu 17 erweitert werden
 
             #F7 prüfen
-            if self.f7_dj == self.AN:      #F7 ist an
-                l_count = 0
-                while l_count < 4: #4 Durchgänge
-                    l_count = l_count + 1
-                    time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
-                    if GPIO.input(5) and l_count == 4:      #F7 ist 2 Sekunden lang aus
-                        # ok, getting serious... switch it!
-                        self.f7_dj = self.AUS
-                    if GPIO.input(5):                       #F7 ist aus
-                        continue # next iteration
-                    else:   #F7 ist an
-                        break # leave while
-            elif self.f7_dj == self.AUS:    #F7 ist aus
-                l_count = 0
-                while l_count < 4: #4 Durchgänge
-                    l_count = l_count + 1
-                    time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
-                    if not GPIO.input(5) and l_count == 4:      #F7 ist 2 Sekunden lang an
-                        # ok, getting serious... switch it!
-                        self.f7_dj = self.AN
-                    if not GPIO.input(5):           #F7 ist an
-                        continue # next iteration
-                    else:    #F7 ist aus
-                        break # leave while
+            self.check_input(self.f7_dj, 5)
 
             #F13 prüfen
-            if self.f13_kasse == self.AN:      #F13 ist an
-                l_count = 0
-                while l_count < 4: #4 Durchgänge
-                    l_count = l_count + 1
-                    time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
-                    if GPIO.input(24) and l_count == 4:      #F13 ist 2 Sekunden lang aus
-                        # ok, getting serious... switch it!
-                        self.f13_kasse = self.AUS
-                    if GPIO.input(24):                       #F13 ist aus
-                        continue # next iteration
-                    else:   #F13 ist an
-                        break # leave while
-            elif self.f13_kasse == self.AUS:    #F13 ist aus
-                l_count = 0
-                while l_count < 4: #4 Durchgänge
-                    l_count = l_count + 1
-                    time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
-                    if not GPIO.input(24) and l_count == 4:      #F13 ist 2 Sekunden lang an
-                        # ok, getting serious... switch it!
-                        self.f13_kasse = self.AN
-                    if not GPIO.input(24):           #F13 ist an
-                        continue # next iteration
-                    else:    #F13 ist aus
-                        break # leave while
+            self.check_input(self.f13_kasse, 24)
 
             #F15 prüfen
-            if self.f15_bar_theke_licht == self.AN: #F15 ist an
-                l_count = 0
-                while l_count < 4: #4 Durchgänge
-                    l_count = l_count + 1
-                    time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
-                    if GPIO.input(25) and l_count == 4:      #F15 ist 2 Sekunden lang aus
-                        # ok, getting serious... switch it!
-                        self.f15_bar_theke_licht = self.AUS
-                    if GPIO.input(25):                       #F15 ist aus
-                        continue # next iteration
-                    else:   #F15 ist an
-                        break # leave while
-            elif self.f15_bar_theke_licht == self.AUS:    #F15 ist aus
-                l_count = 0
-                while l_count < 4: #4 Durchgänge
-                    l_count = l_count + 1
-                    time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
-                    if not GPIO.input(25) and l_count == 4:      #F15 ist 2 Sekunden lang an
-                        # ok, getting serious... switch it!
-                        self.f15_bar_theke_licht = self.AN
-                    if not GPIO.input(25):           #F15 ist an
-                        continue # next iteration
-                    else:    #F15 ist aus
-                        break # leave while
+            self.check_input(self.f15_bar_theke_licht, 25)
 
-            
             #Hat sich was geändert?
             # 3 Änderungen
             if self.f7_dj != self.f7_forum and self.f13_kasse != self.f13_forum and self.f15_bar_theke_licht != self.f15_forum:
@@ -250,21 +230,7 @@ class null7b:
                 self.f13_forum = self.f13_kasse
                 self.f15_forum = self.f15_bar_theke_licht
 
-                if ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.ROT:     #Änderung Ampel rot -> grün
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.GRN
-                    self.update_ampel( self.ampel_status )                    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.GRN:   #Änderung Ampel grün -> rot
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.ROT
-                    self.update_ampel( self.ampel_status )   
-
-                elif ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.GRN:     #Ampel ist und bleibt grün
-                    self.update_ampel( self.ampel_status )    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.ROT:   #Ampel ist und bleibt rot
-                    self.update_ampel( self.ampel_status )  
+                self.trigger_ampel_update
 
             # 2 Änderungen F7 & F13
             elif self.f7_dj != self.f7_forum and self.f13_kasse != self.f13_forum:
@@ -273,21 +239,7 @@ class null7b:
                 self.f7_forum = self.f7_dj
                 self.f13_forum = self.f13_kasse
 
-                if ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.ROT:     #Änderung Ampel rot -> grün
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.GRN
-                    self.update_ampel( self.ampel_status )                    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.GRN:   #Änderung Ampel grün -> rot
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.ROT
-                    self.update_ampel( self.ampel_status )   
-
-                elif ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.GRN:     #Ampel ist und bleibt grün
-                    self.update_ampel( self.ampel_status )    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.ROT:   #Ampel ist und bleibt rot
-                    self.update_ampel( self.ampel_status )  
+                self.trigger_ampel_update
 
             # 2 Änderungen F7 & F15
             elif self.f7_dj != self.f7_forum and self.f15_bar_theke_licht != self.f15_forum:
@@ -296,21 +248,7 @@ class null7b:
                 self.f7_forum = self.f7_dj
                 self.f15_forum = self.f15_bar_theke_licht
 
-                if ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.ROT:     #Änderung Ampel rot -> grün
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.GRN
-                    self.update_ampel( self.ampel_status )                    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.GRN:   #Änderung Ampel grün -> rot
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.ROT
-                    self.update_ampel( self.ampel_status )   
-
-                elif ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.GRN:     #Ampel ist und bleibt grün
-                    self.update_ampel( self.ampel_status )    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.ROT:   #Ampel ist und bleibt rot
-                    self.update_ampel( self.ampel_status )  
+                self.trigger_ampel_update
 
             # 2 Änderungen F13 & F15
             elif self.f13_kasse != self.f13_forum and self.f15_bar_theke_licht != self.f15_forum:
@@ -319,84 +257,28 @@ class null7b:
                 self.f13_forum = self.f13_kasse
                 self.f15_forum = self.f15_bar_theke_licht
 
-                if ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.ROT:     #Änderung Ampel rot -> grün
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.GRN
-                    self.update_ampel( self.ampel_status )                    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.GRN:   #Änderung Ampel grün -> rot
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.ROT
-                    self.update_ampel( self.ampel_status )   
-
-                elif ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.GRN:     #Ampel ist und bleibt grün
-                    self.update_ampel( self.ampel_status )    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.ROT:   #Ampel ist und bleibt rot
-                    self.update_ampel( self.ampel_status )   
+                self.trigger_ampel_update
 
             # 1 Änderungen F7
             elif self.f7_dj != self.f7_forum:
                 self.datetimestring_f7 = self.get_datetimestring()
                 self.f7_forum = self.f7_dj
 
-                if ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.ROT:     #Änderung Ampel rot -> grün
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.GRN
-                    self.update_ampel( self.ampel_status )                    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.GRN:   #Änderung Ampel grün -> rot
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.ROT
-                    self.update_ampel( self.ampel_status )   
-
-                elif ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.GRN:     #Ampel ist und bleibt grün
-                    self.update_ampel( self.ampel_status )    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.ROT:   #Ampel ist und bleibt rot
-                    self.update_ampel( self.ampel_status )  
+                self.trigger_ampel_update
 
             # 1 Änderung F13
             elif self.f13_kasse != self.f13_forum:
                 self.datetimestring_f13 = self.get_datetimestring()
                 self.f13_forum = self.f13_kasse
 
-                if ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.ROT:     #Änderung Ampel rot -> grün
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.GRN
-                    self.update_ampel( self.ampel_status )                    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.GRN:   #Änderung Ampel grün -> rot
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.ROT
-                    self.update_ampel( self.ampel_status )   
-
-                elif ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.GRN:     #Ampel ist und bleibt grün
-                    self.update_ampel( self.ampel_status )    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.ROT:   #Ampel ist und bleibt rot
-                    self.update_ampel( self.ampel_status )  
+                self.trigger_ampel_update
 
             # 1 Änderung F15
             elif self.f15_bar_theke_licht != self.f15_forum:
                 self.datetimestring_f15 = self.get_datetimestring()
                 self.f15_forum = self.f15_bar_theke_licht
 
-                if ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.ROT:     #Änderung Ampel rot -> grün
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.GRN
-                    self.update_ampel( self.ampel_status )                    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.GRN:   #Änderung Ampel grün -> rot
-                    self.datetimestring_ampel = self.datetimestring_f7
-                    self.ampel_status = self.ROT
-                    self.update_ampel( self.ampel_status )   
-
-                elif ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.GRN:     #Ampel ist und bleibt grün
-                    self.update_ampel( self.ampel_status )    
-
-                elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.ROT:   #Ampel ist und bleibt rot
-                    self.update_ampel( self.ampel_status )    
+                self.trigger_ampel_update   
 
             #keine Änderungen
             #else:
