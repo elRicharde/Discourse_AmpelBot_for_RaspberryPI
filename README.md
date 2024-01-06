@@ -18,3 +18,5 @@ Version 1.32 - Bugfixes
 Version 1.33 - Exeption Handling for DiscourseClient added
 
 Version 1.34 - Code Redundanzen entfernt
+
+Version 1.35 - Bug entfernt das in wenigen Konstellationen die Ampelzeit falsch aktualisiert wurde
