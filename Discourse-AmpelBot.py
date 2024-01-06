@@ -1,7 +1,7 @@
 # Discourse_null7b
 # Autor: Richarde
 # Script zum Update eines Discourse-Forum-Posts via User "Ampel-Bot"
-# wird mindestens einer von 3 Eingängen geschalten, geht die Ampel auf Gruen
+# wird mindestens einer von 3 Eingängen geschaltet, geht die Ampel auf Grün
 # ist kein Eingang High, geht die Ampel auf Rot
 # Version 1.1 vom 04.08.2021
 #
@@ -18,8 +18,8 @@
 ###############################################################################
 # Version 1.1 - 04.08.2021
 # Richarde
-# - Logikumkehr: Es soll ein Eingang am Raspi auf Masse geschalten werden wenn 
-#   eine der berwachten Sicherungen eingeschalten wird, somit keine falschen
+# - Logikumkehr: Es soll ein Eingang am Raspi auf Masse geschaltet werden, wenn
+#   eine der überwachten Sicherungen eingeschalten wird, somit keine falschen
 #   Schaltvorgänge durch Induktionsspannungen (Schaltpegel 3,3 V ist sehr klein) 
 # - Schaltverzögerung von 2 Sekunden um jedes Prellen der Schalter zu vermeiden
 ###############################################################################
@@ -47,7 +47,13 @@
 # Richarde
 # Code Redundanzen entfernen
 ###############################################################################
-
+# Version 1.35 - 06.01.2024
+# Richarde
+# Bug entfernt das in wenigen Konstellationen die Ampelzeit falsch aktualisiert wurde
+#
+# Version 1.4 könnte eine Kommunikation an ein Service-Postfach etablieren
+# oder eine Nachricht im Forum fortschreiben welche Fehler oder ander Logs trackt
+###############################################################################
 
 # benötigte Bibliotheken für das Projekt einbinden
 from pydiscourse import DiscourseClient
@@ -131,15 +137,15 @@ class null7b:
                 else:    #Sicherung ist aus
                     break # leave while
     
-    def trigger_ampel_update(self):
+    def trigger_ampel_update(self, datetimestring_change):
 
         if ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.ROT:     #Änderung Ampel rot -> grün
-            self.datetimestring_ampel = self.datetimestring_f7
+            self.datetimestring_ampel = datetimestring_change
             self.ampel_status = self.GRN
             self.update_ampel( self.ampel_status )                    
 
         elif self.f7_dj == self.AUS and self.f13_kasse == self.AUS and self.f15_bar_theke_licht == self.AUS and self.ampel_status == self.GRN:   #Änderung Ampel grün -> rot
-            self.datetimestring_ampel = self.datetimestring_f7
+            self.datetimestring_ampel = datetimestring_change
             self.ampel_status = self.ROT
             self.update_ampel( self.ampel_status )   
 
@@ -230,7 +236,7 @@ class null7b:
                 self.f13_forum = self.f13_kasse
                 self.f15_forum = self.f15_bar_theke_licht
 
-                self.trigger_ampel_update
+                self.trigger_ampel_update(self.datetimestring_f7)
 
             # 2 Änderungen F7 & F13
             elif self.f7_dj != self.f7_forum and self.f13_kasse != self.f13_forum:
@@ -239,7 +245,7 @@ class null7b:
                 self.f7_forum = self.f7_dj
                 self.f13_forum = self.f13_kasse
 
-                self.trigger_ampel_update
+                self.trigger_ampel_update(self.datetimestring_f7)
 
             # 2 Änderungen F7 & F15
             elif self.f7_dj != self.f7_forum and self.f15_bar_theke_licht != self.f15_forum:
@@ -248,7 +254,7 @@ class null7b:
                 self.f7_forum = self.f7_dj
                 self.f15_forum = self.f15_bar_theke_licht
 
-                self.trigger_ampel_update
+                self.trigger_ampel_update(self.datetimestring_f7)
 
             # 2 Änderungen F13 & F15
             elif self.f13_kasse != self.f13_forum and self.f15_bar_theke_licht != self.f15_forum:
@@ -257,28 +263,28 @@ class null7b:
                 self.f13_forum = self.f13_kasse
                 self.f15_forum = self.f15_bar_theke_licht
 
-                self.trigger_ampel_update
+                self.trigger_ampel_update(self.datetimestring_f13)
 
             # 1 Änderungen F7
             elif self.f7_dj != self.f7_forum:
                 self.datetimestring_f7 = self.get_datetimestring()
                 self.f7_forum = self.f7_dj
 
-                self.trigger_ampel_update
+                self.trigger_ampel_update(self.datetimestring_f7)
 
             # 1 Änderung F13
             elif self.f13_kasse != self.f13_forum:
                 self.datetimestring_f13 = self.get_datetimestring()
                 self.f13_forum = self.f13_kasse
 
-                self.trigger_ampel_update
+                self.trigger_ampel_update(self.datetimestring_f13)
 
             # 1 Änderung F15
             elif self.f15_bar_theke_licht != self.f15_forum:
                 self.datetimestring_f15 = self.get_datetimestring()
                 self.f15_forum = self.f15_bar_theke_licht
 
-                self.trigger_ampel_update   
+                self.trigger_ampel_update(self.datetimestring_f15)
 
             #keine Änderungen
             #else:
