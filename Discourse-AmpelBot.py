@@ -54,7 +54,8 @@
 # Version 1.4 könnte eine Kommunikation an ein Service-Postfach etablieren
 # oder eine Nachricht im Forum fortschreiben welche Fehler oder ander Logs trackt
 ###############################################################################
-# Version 1.36 - Bugfix
+# Version 1.36 - 22.01.2024
+# Bugfix
 # Richarde
 # added Return Parameter in new method check_input
 ###############################################################################
