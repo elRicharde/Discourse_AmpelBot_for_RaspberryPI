@@ -54,7 +54,10 @@
 # Version 1.4 könnte eine Kommunikation an ein Service-Postfach etablieren
 # oder eine Nachricht im Forum fortschreiben welche Fehler oder ander Logs trackt
 ###############################################################################
-
+# Version 1.36 - Bugfix
+# Richarde
+# added Return Parameter in new method check_input
+###############################################################################
 # benötigte Bibliotheken für das Projekt einbinden
 from pydiscourse import DiscourseClient
 import RPi.GPIO as GPIO
@@ -110,33 +113,35 @@ class null7b:
         else:
             self.f15_bar_theke_licht = self.AN      
 
-    def check_input(self, i_fuse, i_GPIO):  # i_fuse = self.f15_bar_theke_licht i_GPIO = 25
+    def check_input(self, c_fuse, i_GPIO):  # i_fuse = self.f15_bar_theke_licht i_GPIO = 25
 
-        if i_fuse == self.AN: #Sicherung ist an
+        if c_fuse == self.AN: #Sicherung ist an
             l_count = 0
             while l_count < 4: #4 Durchgänge
                 l_count = l_count + 1
                 time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
                 if GPIO.input(i_GPIO) and l_count == 4: #Sicherung ist 2 Sekunden lang aus
                     # ok, getting serious... switch it!
-                    i_fuse = self.AUS
+                    c_fuse = self.AUS
                 if GPIO.input(i_GPIO):  #Sicherung ist aus
                     continue # next iteration
                 else:   #Sicherung ist an
                     break # leave while
-        elif i_fuse == self.AUS:    #Sicherung ist aus
+        elif c_fuse == self.AUS:    #Sicherung ist aus
             l_count = 0
             while l_count < 4: #4 Durchgänge
                 l_count = l_count + 1
                 time.sleep(0.5) #besser 4x schauen als 1x, verringert das Risiko einer Fehlbetätigung bei flatternden Zuständen nochmals
                 if not GPIO.input(i_GPIO) and l_count == 4: #Sicherung ist 2 Sekunden lang an
                     # ok, getting serious... switch it!
-                    i_fuse = self.AN
+                    c_fuse = self.AN
                 if not GPIO.input(i_GPIO):  #Sicherung ist an
                     continue # next iteration
                 else:    #Sicherung ist aus
                     break # leave while
-    
+
+        return c_fuse  # return updated status
+
     def trigger_ampel_update(self, datetimestring_change):
 
         if ( self.f7_dj == self.AN or self.f13_kasse == self.AN or self.f15_bar_theke_licht == self.AN ) and self.ampel_status == self.ROT:     #Änderung Ampel rot -> grün
@@ -218,13 +223,13 @@ class null7b:
             # Gerüst vorerst für 3 Eingänge (5, 24, 25), kann aber auf bis zu 17 erweitert werden
 
             #F7 prüfen
-            self.check_input(self.f7_dj, 5)
+            self.f7_dj = self.check_input(self.f7_dj, 5)
 
             #F13 prüfen
-            self.check_input(self.f13_kasse, 24)
+            self.f13_kasse = self.check_input(self.f13_kasse, 24)
 
             #F15 prüfen
-            self.check_input(self.f15_bar_theke_licht, 25)
+            self.f15_bar_theke_licht = self.check_input(self.f15_bar_theke_licht, 25)
 
             #Hat sich was geändert?
             # 3 Änderungen
