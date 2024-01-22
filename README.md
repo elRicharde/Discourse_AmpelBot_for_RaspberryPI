@@ -20,3 +20,5 @@ Version 1.33 - Exeption Handling for DiscourseClient added
 Version 1.34 - Code Redundanzen entfernt
 
 Version 1.35 - Bug entfernt das in wenigen Konstellationen die Ampelzeit falsch aktualisiert wurde
+
+Version 1.36 - Bugfix - added Return Parameter in new method check_input
